@@ -1,4 +1,6 @@
-﻿# Guia de Conversão de Áudio com FFmpeg
+<p align="right"><a href="README.md">🇺🇸 English</a></p>
+ 
+ # Guia de Conversão de Áudio com FFmpeg
 **Última atualização:** 01/10/2026
 
 Este guia fornece instruções passo a passo para converter arquivos de áudio, com foco especial na transição de FLAC para MP3 preservando a máxima qualidade e metadados.
