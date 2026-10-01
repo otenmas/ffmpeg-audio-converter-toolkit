@@ -1,28 +1,28 @@
 <p align="right"><a href="README.md">🇺🇸 English</a></p>
- 
- # Guia de Conversão de Áudio com FFmpeg
+
+# Guia de Conversão de Áudio com FFmpeg
 **Última atualização:** 01/10/2026
 
 Este guia fornece instruções passo a passo para converter arquivos de áudio, com foco especial na transição de FLAC para MP3 preservando a máxima qualidade e metadados.
 
 A documentação oficial do FFmpeg se encontra em: [https://ffmpeg.org/ffmpeg.html](https://ffmpeg.org/ffmpeg.html).
 
-Tambem fiz uma curta secao sobre o programa [MusicBrainz Picard](https://picard.musicbrainz.org/), o qual uso para obter os Metadados completos das musicas e albuns, o qual busca de um *database* de discos lançados oficialmente, posuindo dados de varias versões (releases) dos Albuns.
+Também incluo uma breve seção sobre o programa [MusicBrainz Picard](https://picard.musicbrainz.org/), o qual uso para obter os metadados completos das músicas e álbuns, que busca de um banco de dados de discos lançados oficialmente, possuindo dados de várias versões (releases) dos álbuns.
 
-Outra alternativa para converter arquivos de audio é o software [Foobar2000](https://www.foobar2000.org/), o qual possui interfase grafica, é um dos Players mais antigos e completos da internet.
+Outra alternativa para converter arquivos de áudio é o software [Foobar2000](https://www.foobar2000.org/), que possui interface gráfica e é um dos players mais antigos e completos da internet.
 
 ---
 
 ## 1. Instalação do FFmpeg
 
-A maneira mais facil de instalar é pelo winget do windows (para usuarios do windowws), ja que o site oficial (https://ffmpeg.org/) só disponibiliza os binarios, e voce teria que configurar o PATH.
+A maneira mais fácil de instalar é pelo winget do Windows (para usuários do Windows), já que o site oficial (https://ffmpeg.org/) só disponibiliza os binários, e você teria que configurar o PATH manualmente.
 
-Abra o powershell:
+Abra o PowerShell:
 ```powershell
 winget install ffmpeg
 ```
 
-Após instalar, se o terminal não reconhecer o ffmpeg, atualizar o PATH manualmente:
+Após instalar, se o terminal não reconhecer o ffmpeg, atualize o PATH manualmente:
 
 ```powershell
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
@@ -46,18 +46,17 @@ Get-ChildItem -Filter "*.flac" | ForEach-Object {
 }
 ```
 
-### 256 kbps ou outros formatos altere manualmente
+### 256 kbps ou outros formatos
 ```powershell
 Get-ChildItem -Filter "*.flac" | ForEach-Object {
     ffmpeg -i $_.FullName -b:a 256k -map_metadata 0 "$($_.DirectoryName)\$($_.BaseName).mp3"
 }
 ```
 
-
-
 ### Conversão com Verificação e Log (Seguro para deletar FLAC)
-Para quem deseja automatizar a verificação de integridade e ter um relatório final antes de apagar os originais, o ideal é utilizar um script do PowerShell, extensão: `.ps1`. 
-Exemplo de lógica para o comando:
+Para quem deseja automatizar a verificação de integridade e ter um relatório final antes de apagar os originais, o ideal é utilizar um script do PowerShell com extensão `.ps1`. 
+
+Exemplo de lógica básica para rodar no terminal:
 ```powershell
 # Exemplo simplificado para rodar no terminal (gera log básico)
 $sucessos = 0; $erros = 0
@@ -73,7 +72,7 @@ Write-Host "Convertidos: $sucessos | Falhas: $erros"
 
 ---
 
-## Resumo dos principais comandos ffmpeg
+## Resumo dos principais comandos FFmpeg
 
 ### Conversão básica
 ```powershell
@@ -159,22 +158,24 @@ Quando os comandos ficam muito longos ou exigem verificações complexas (como c
 2. Escolha um dos modelos abaixo (conforme sua necessidade) e crie o arquivo com a extensão `.ps1`.
 3. **Importante**: Abra o arquivo e edite a variável `$root = 'D:\Music'` para o caminho da sua pasta de músicas.
 
-#### Modelos Disponíveis:
+#### Modelos Disponíveis
 
-Baixe os arquivos, ou copie o bloco de codigo e cole em qualquer editor de texto e salve com a extensao `.ps1`
+Os scripts estão na pasta `/scripts` deste repositório. Você pode baixá-los ou copiar o conteúdo e colar em qualquer editor de texto, salvando com a extensão `.ps1`.
 
 - **`QuickConvert.ps1`**: Conversão direta e rápida. Ideal para quem confia plenamente nos arquivos.
 - **`SafeConvert.ps1`**: Utiliza arquivos temporários (`.tmp`). Só renomeia para `.mp3` se a conversão for concluída sem erros.
 - **`AuditConvert.ps1`**: O nível máximo de segurança. Faz inventário de tamanho, usa o `ffprobe` para validar se o áudio interno do MP3 é real e funcional antes de dar o OK.
 
 **Dica de Uso**: Você pode colocar o script dentro da pasta de músicas. Se quiser isso, altere a linha: `$root = 'D:\Music'` para:
-`$root = $PSScriptRoot`
+```powershell
+$root = $PSScriptRoot
+```
 Assim, o script converterá automaticamente todos os FLACs da pasta onde ele estiver e de todas as subpastas.
-> os scripts estao configurados com o argumento `-q:a 0`, o qual converte na maxima qualidade com bitrate variavel.
 
+> Os scripts estão configurados com o argumento `-q:a 0`, que converte na máxima qualidade com bitrate variável.
 
 ### 2. Como executar o script
-// ...existing code...
+
 Por padrão, o Windows bloqueia a execução de scripts por segurança. Para rodar seu script:
 
 **Opção A: Executar via Terminal do VS Code**
@@ -182,8 +183,11 @@ Por padrão, o Windows bloqueia a execução de scripts por segurança. Para rod
 .\AuditConvert.ps1
 ```
 
-*Se der erro de "Execution Policy", antes de executar o script, rode:* `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
-E confirme, para liberar o usuario para rodar scripts no PowerShell.
+*Se der erro de "Execution Policy", antes de executar o script, rode:*
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+E confirme, para liberar o usuário para rodar scripts no PowerShell.
 
 **Opção B: Executar via PowerShell (Admin)**
 1. Abra o PowerShell como Administrador.
@@ -199,7 +203,7 @@ Para quem deseja um nível de precisão profissional (estilo servidor), existem 
 ### 1. Conversão via Arquivo Temporário (`.tmp`)
 Em vez de converter diretamente para `.mp3`, o script converte para `.mp3.tmp`. 
 - **Por que?** Se a conversão falhar no meio, você terá um arquivo `.tmp` incompleto, mas não terá um arquivo `.mp3` "falso" que enganaria o sistema.
-- **Fluxo**: `FLAC` $\rightarrow$ `MP3.tmp` $\rightarrow$ (Validação OK?) $\rightarrow$ `MP3`.
+- **Fluxo**: `FLAC` → `MP3.tmp` → (Validação OK?) → `MP3`
 
 ### 2. Detecção de Conflitos Prévios
 Antes de iniciar, é possível rodar um inventário para mapear quais FLACs já possuem um MP3 correspondente. Isso evita processamento desnecessário e permite criar uma lista de "arquivos a ignorar".
@@ -211,11 +215,12 @@ O `ffprobe` (irmão do ffmpeg) consegue ler a "anatomia" do arquivo. Para garant
 - **Bitrate**: Validar se o bitrate está dentro da faixa esperada (ex: entre 300kbps e 330kbps para MP3 320k).
 
 ---
-# Edição e Busca de Metadados (MusicBrainz Picard)
+
+## Edição e Busca de Metadados (MusicBrainz Picard)
 
 Para organizar a biblioteca após a conversão, o **MusicBrainz Picard** é a ferramenta recomendada para buscar metadados precisos e renomear arquivos automaticamente.
 
-voce pode baixa-lo no site oficial: [https://picard.musicbrainz.org/](https://picard.musicbrainz.org/)
+Você pode baixá-lo no site oficial: [https://picard.musicbrainz.org/](https://picard.musicbrainz.org/)
 
 ### Configuração do File Naming Script
 Para evitar a colisão de nomes em álbuns com múltiplos discos e manter a organização limpa, você pode configurar o **File naming script editor** com o seguinte comando:
@@ -232,114 +237,99 @@ $if2(%albumartist%,%artist%)-$if($gt(%totaldiscs%,1),%discnumber%-)$num(%tracknu
 
 **Como aplicar:** Cole o script no editor de renomeação do Picard e clique em **"Faça assim!"** para aplicar as alterações aos arquivos selecionados.
 
-# Utilizando o Foobar2000
+---
 
-Como alternativa ao FFmpeg, que não possui interface grafica, o que pode ser barreira para usuarios leigos de terminal, pode-se utilizar o Foobar2000, baixado em [https://www.foobar2000.org/](https://www.foobar2000.org/)
+## Utilizando o Foobar2000
+
+Como alternativa ao FFmpeg (que não possui interface gráfica e pode ser uma barreira para usuários leigos em terminal), você pode usar o Foobar2000, baixado em [https://www.foobar2000.org/](https://www.foobar2000.org/).
 
 O **foobar2000** é amplamente considerado um dos melhores conversores de áudio para Windows, sendo muito prático para converter lotes de FLAC para MP3 (seja em V0 ou 320 kbps) sem precisar mexer em linhas de comando.
 
-Como o foobar2000 precisa do executável oficial do codificador MP3 do LAME para realizar conversões com perfis avançados (como o V0), o processo envolve uma configuração inicial rápida e, depois, uma rotina de conversão muito simples.
+Como o foobar2000 precisa do executável oficial do codificador MP3 do LAME para realizar conversões com perfis avançados (como o V0), o processo envolve uma configuração inicial rápida e depois uma rotina de conversão muito simples.
 
 ### Passo 1: Preparação Inicial (Baixar o conversor LAME)
 
 O foobar2000 por si só não converte para MP3 nativamente sem o arquivo oficial do LAME por questões de patente.
 
-1.  Baixe o **Encoder Pack** oficial no site do foobar2000 (`foobar2000.org` na seção de componentes) ou baixe diretamente o arquivo `lame.exe`.
-    
-2.  Extraia o `lame.exe` em uma pasta de fácil acesso no seu computador (por exemplo, `C:\Tools\lame.exe`).
-    
+1. Baixe o **Encoder Pack** oficial no site do foobar2000 (`foobar2000.org` na seção de componentes) ou baixe diretamente o arquivo `lame.exe`.
 
-### Passo 2: Criando a sua Rotina (Script/Guia passo a passo) no foobar2000
+2. Extraia o `lame.exe` em uma pasta de fácil acesso no seu computador (por exemplo, `C:\Tools\lame.exe`).
+
+### Passo 2: Criando a sua Rotina (Guia passo a passo) no foobar2000
 
 Uma vez configurado, para converter os seus FLACs em lote, siga este roteiro:
 
 #### 1. Importar os arquivos
 
--   Abra o **foobar2000**.
-    
--   Arraste a pasta ou os arquivos `.flac` que você deseja converter diretamente para dentro da janela principal do programa.
-    
+- Abra o **foobar2000**.
+- Arraste a pasta ou os arquivos `.flac` que você deseja converter diretamente para dentro da janela principal do programa.
 
 #### 2. Selecionar e acionar a conversão
 
--   Selecione todas as músicas na lista (pressione `Ctrl + A`).
-    
--   Clique com o botão direito em cima das músicas selecionadas.
-    
--   Vá em **Convert** (Converter) > **... (Quick Convert)** ou **Convert** > **Fazer conversão**.
-    
+- Selecione todas as músicas na lista (pressione `Ctrl + A`).
+- Clique com o botão direito em cima das músicas selecionadas.
+- Vá em **Convert** (Converter) > **... (Quick Convert)** ou **Convert** > **Fazer conversão**.
 
 #### 3. Configurar o Perfil de Saída (MP3 V0 ou 320 kbps)
 
 Na janela de configuração que vai se abrir, escolha o formato de saída:
 
--   Clique em **Output format** (Formato de saída).
-    
--   Selecione **MP3 (lame)**.
-    
--   Ajuste o modo de qualidade conforme a sua preferência:
-    
-    -   **Para a qualidade V0 (VBR):** Escolha o modo _VBR_ e mova o controle deslizante para a qualidade máxima (equivalente ao preset V0, geralmente gerando taxas dinâmicas em torno de 245 kbps).
-        
-    -   **Para 320 kbps (CBR):** Escolha o modo _CBR_ e defina o valor fixo para **320 kbps**.
-        
--   Clique em **Back** (Voltar).
-    
+- Clique em **Output format** (Formato de saída).
+- Selecione **MP3 (lame)**.
+- Ajuste o modo de qualidade conforme a sua preferência:
+  - **Para a qualidade V0 (VBR):** Escolha o modo _VBR_ e mova o controle deslizante para a qualidade máxima (equivalente ao preset V0, geralmente gerando taxas dinâmicas em torno de 245 kbps).
+  - **Para 320 kbps (CBR):** Escolha o modo _CBR_ e defina o valor fixo para **320 kbps**.
+- Clique em **Back** (Voltar).
 
 #### 4. Indicar onde o LAME está (Apenas na primeira vez)
 
--   Se o foobar2000 perguntar onde está localizado o arquivo **`lame.exe`**, navegue até a pasta onde você o salvou no Passo 1 (`C:\Tools\lame.exe`) e selecione-o. O programa memoriza esse caminho para sempre.
-    
+- Se o foobar2000 perguntar onde está localizado o arquivo **`lame.exe`**, navegue até a pasta onde você o salvou no Passo 1 (`C:\Tools\lame.exe`) e selecione-o. O programa memoriza esse caminho para sempre.
 
 #### 5. Definir o destino e converter
 
--   Em **Destination** (Destino), escolha se deseja salvar os MP3s na mesma pasta dos arquivos originais ou em uma pasta separada.
-    
--   Clique no botão **Convert** (Converter).
+- Em **Destination** (Destino), escolha se deseja salvar os MP3s na mesma pasta dos arquivos originais ou em uma pasta separada.
+- Clique no botão **Convert** (Converter).
 
-##  Como criar Predefinições.
+### Como criar Predefinições (Presets)
 
 Para criar **predefinições (presets)** no foobar2000 — permitindo alternar com um clique entre o perfil **MP3 V0** e **MP3 320 kbps** sem ter que reconfigurar tudo de novo —, você utiliza a ferramenta **Converter Setup**.
 
 Siga este roteiro passo a passo:
 
-### Passo 1: Abrir o Conversor e Configurar o primeiro Preset (ex: MP3 V0)
+#### Passo 1: Abrir o Conversor e Configurar o primeiro Preset (ex: MP3 V0)
 
-1.  No foobar2000, selecione algumas músicas na lista, clique com o botão direito e vá em **Convert** > **... (Quick Convert)** (ou _Fazer conversão_).
-    
-2.  Na janela que se abre, clique em **Output format** (Formato de saída), selecione **MP3 (lame)** e configure os parâmetros para **V0** (modo VBR na qualidade máxima).
-    
-3.  Ajuste também as outras opções que você deseja que fiquem salvas nesse perfil (por exemplo: padrão de nomeação de arquivos em _Destination_ ou tratamento de capas de álbum).
-    
-4.  No topo dessa mesma janela de configuração, procure pelo botão **Save** (Salvar) ou **Save preset** (Salvar predefinição).
-    
-5.  Dê um nome claro para ele, como por exemplo: **`MP3 - V0 VBR`** e salve.
-    
+1. No foobar2000, selecione algumas músicas na lista, clique com o botão direito e vá em **Convert** > **... (Quick Convert)** (ou _Fazer conversão_).
 
-### Passo 2: Criar o segundo Preset (ex: MP3 320 kbps)
+2. Na janela que se abre, clique em **Output format** (Formato de saída), selecione **MP3 (lame)** e configure os parâmetros para **V0** (modo VBR na qualidade máxima).
 
-1.  Ainda na mesma janela, mude o formato de saída (**Output format**) para **MP3 (lame)**, mas agora configure o modo para **CBR** e defina o valor fixo em **320 kbps**.
-    
-2.  Volte ao topo da janela e clique novamente em **Save** / **Save preset**.
-    
-3.  Dê um nome para diferenciar, como: **`MP3 - 320kbps CBR`** e salve.
-    
+3. Ajuste também as outras opções que você deseja que fiquem salvas nesse perfil (por exemplo: padrão de nomeação de arquivos em _Destination_ ou tratamento de capas de álbum).
 
-### Como usar os seus Presets a partir de agora:
+4. No topo dessa mesma janela de configuração, procure pelo botão **Save** (Salvar) ou **Save preset** (Salvar predefinição).
+
+5. Dê um nome claro para ele, como por exemplo: **`MP3 - V0 VBR`** e salve.
+
+#### Passo 2: Criar o segundo Preset (ex: MP3 320 kbps)
+
+1. Ainda na mesma janela, mude o formato de saída (**Output format**) para **MP3 (lame)**, mas agora configure o modo para **CBR** e defina o valor fixo em **320 kbps**.
+
+2. Volte ao topo da janela e clique novamente em **Save** / **Save preset**.
+
+3. Dê um nome para diferenciar, como: **`MP3 - 320kbps CBR`** e salve.
+
+#### Como usar os seus Presets a partir de agora:
 
 Com os presets salvos, você nunca mais precisará reconfigurar as opções de áudio:
 
-1.  Selecione os arquivos FLAC que deseja converter.
-    
-2.  Clique com o botão direito e vá em **Convert** > **Converter (menu completo)** ou no atalho que leva direto aos presets salvos.
-    
-3.  Você verá uma lista com os seus perfis criados (**`MP3 - V0 VBR`** e **`MP3 - 320kbps CBR`**).
-    
-4.  Basta clicar em cima do preset desejado e a conversão começará instantaneamente com as configurações prontas!
-    
+1. Selecione os arquivos FLAC que deseja converter.
+
+2. Clique com o botão direito e vá em **Convert** > **Converter (menu completo)** ou no atalho que leva direto aos presets salvos.
+
+3. Você verá uma lista com os seus perfis criados (**`MP3 - V0 VBR`** e **`MP3 - 320kbps CBR`**).
+
+4. Basta clicar em cima do preset desejado e a conversão começará instantaneamente com as configurações prontas!
 
 ### Vantagens do foobar2000 em relação ao script do FFmpeg:
 
--   **Metadados e Capas:** Ele copia automaticamente as capas de álbum (`cover.jpg` ou tags embutidas) direto para os arquivos MP3 gerados sem precisar de comandos extras de mapeamento.
-    
--   **Interface Gráfica:** Permite visualizar o progresso de conversão de múltiplos arquivos em paralelo de forma muito limpa.
+- **Metadados e Capas:** Ele copia automaticamente as capas de álbum (`cover.jpg` ou tags embutidas) direto para os arquivos MP3 gerados sem precisar de comandos extras de mapeamento.
+
+- **Interface Gráfica:** Permite visualizar o progresso de conversão de múltiplos arquivos em paralelo de forma muito limpa.
